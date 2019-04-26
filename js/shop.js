@@ -1,7 +1,11 @@
 /* jshint esversion: 6 */
 
-window.onload = function () {
-  //send request
+window.onload = function () { //запускать скрипт при загруженной странице
+  //пустой ассоциативный массив
+  let cart = {};
+  let goods = {};
+
+  //запрос на получение данных из google sheets
   let getJSON = function (URL, callback) {
     let xhr = new XMLHttpRequest();
     xhr.open('GET', URL, true);
@@ -23,10 +27,13 @@ window.onload = function () {
     } else {
       data = data['feed']['entry'];
       console.log(data);
+      goods = arrayHelper(data);
+      console.log(goods);
       document.querySelector('.shop-field').innerHTML = showGoods(data);
     }
   });
 
+  //отображение товаров на странице
   function showGoods(data) {
     let out = '';
     for (var i = 0; i < data.length; i++) {
@@ -37,11 +44,61 @@ window.onload = function () {
         out += `<img src="${data[i]['gsx$image']['$t']}" alt="">`;
         out += `<p class="cost">Price: ${data[i]['gsx$cost']['$t']}$</p>`;
         out += `<p class="cost">Is available: ${data[i]['gsx$kg']['$t']}kg</p>`;
-        out += `<p class="cost"><button type="button" class="btn btn-success" data="${data[i]['gsx$id']['$t']}">Buy</button></p>`;
+        out += `<p class="cost"><button type="button" class="btn btn-success" name="add-to-cart" data="${data[i]['gsx$id']['$t']}">Buy</button></p>`;
         out += `</div>`;
         out += `</div>`;
       }
     }
     return out;
+  }
+
+  //событие с таргетом на кнопку Buy
+  document.onclick = function (e) {
+    console.log(e.target.attributes.data.nodeValue);
+    if (e.target.attributes.name.nodeValue == 'add-to-cart') {
+      addToCart(e.target.attributes.data.nodeValue);
+    }
+  };
+
+  //колличество добавленных элементов в корзине
+  function addToCart(elem) {
+    if (cart[elem] !== undefined) {
+      cart[elem]++;
+    } else {
+      cart[elem] = 1;
+    }
+    console.log(cart);
+    showCart();
+  }
+
+  //описание добавленных элементов в корзине
+  function arrayHelper(arr) {
+    let out = {};
+    for (let i = 0; i < arr.length; i++) {
+      let temp = {};
+      temp['articul'] = arr[i]['gsx$articul']['$t'];
+      temp['name'] = arr[i]['gsx$name']['$t'];
+      temp['category'] = arr[i]['gsx$category']['$t'];
+      temp['cost'] = arr[i]['gsx$cost']['$t'];
+      temp['image'] = arr[i]['gsx$image']['$t'];
+      out[arr[i]['gsx$id']['$t']] = temp;
+    }
+    return out;
+  }
+
+  //отображение корзины в виде списка
+  function showCart() {
+    let ul = document.querySelector('.cart');
+    ul.innerHTML = '';
+    let sum = 0;
+    for (let key in cart) {
+      let li = '<li>';
+      li += goods[key]['name'] + ' ';
+      li += cart[key] + 'kg ';
+      li += '$' + goods[key]['cost'] * cart[key];
+      sum += goods[key]['cost'] * cart[key];
+      ul.innerHTML += li;
+    }
+    ul.innerHTML += 'Subtotal: $' + sum;
   }
 };
