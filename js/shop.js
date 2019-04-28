@@ -5,6 +5,15 @@ window.onload = function () { //запускать скрипт при загр�
   let cart = {};
   let goods = {};
 
+  //загрузка корзины из localStorage
+  function loadCartFromStorage() {
+    if (localStorage.getItem('cart') != undefined) {
+      cart = JSON.parse(localStorage.getItem('cart'));
+    }
+  }
+
+  loadCartFromStorage();
+
   //запрос на получение данных из google sheets
   let getJSON = function (URL, callback) {
     let xhr = new XMLHttpRequest();
@@ -30,6 +39,7 @@ window.onload = function () { //запускать скрипт при загр�
       goods = arrayHelper(data);
       console.log(goods);
       document.querySelector('.shop-field').innerHTML = showGoods(data);
+      showCart();
     }
   });
 
@@ -69,6 +79,7 @@ window.onload = function () { //запускать скрипт при загр�
     }
     console.log(cart);
     showCart();
+    localStorage.setItem('cart', JSON.stringify(cart));
   }
 
   //описание добавленных элементов в корзине
