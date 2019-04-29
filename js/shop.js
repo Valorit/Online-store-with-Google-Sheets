@@ -62,11 +62,33 @@ window.onload = function () { //запускать скрипт при загр�
     return out;
   }
 
-  //событие с таргетом на кнопку Buy
+  //событие с таргетом на кнопку Buy + - Delete
   document.onclick = function (e) {
     console.log(e.target.attributes.data.nodeValue);
     if (e.target.attributes.name.nodeValue == 'add-to-cart') {
       addToCart(e.target.attributes.data.nodeValue);
+    } else if (
+      e.target.attributes.name.nodeValue == 'delete-goods'
+    ) {
+      delete cart[e.target.attributes.data.nodeValue];
+      localStorage.setItem('cart', JSON.stringify(cart));
+      showCart();
+    } else if (
+      e.target.attributes.name.nodeValue == 'plus-goods'
+    ) {
+      cart[e.target.attributes.data.nodeValue]++;
+      localStorage.setItem('cart', JSON.stringify(cart));
+      showCart();
+    } else if (
+      e.target.attributes.name.nodeValue == 'minus-goods'
+    ) {
+      if (cart[e.target.attributes.data.nodeValue] > 1) {
+        cart[e.target.attributes.data.nodeValue]--;
+      } else {
+        delete cart[e.target.attributes.data.nodeValue];
+      }
+      localStorage.setItem('cart', JSON.stringify(cart));
+      showCart();
     }
   };
 
@@ -105,11 +127,16 @@ window.onload = function () { //запускать скрипт при загр�
     for (let key in cart) {
       let li = '<li>';
       li += goods[key]['name'] + ' ';
+      li += `<button name="minus-goods" data='${key}'>-</button>`
       li += cart[key] + 'kg ';
+      li += `<button name="plus-goods" data='${key}'>+</button>`
       li += '$' + goods[key]['cost'] * cart[key];
+      li += `<button name="delete-goods" data='${key}'>Delete</button>`
+      li += '</li>';
       sum += goods[key]['cost'] * cart[key];
       ul.innerHTML += li;
     }
     ul.innerHTML += 'Subtotal: $' + sum;
+
   }
 };
