@@ -64,7 +64,6 @@ window.onload = function () { //запускать скрипт при загр�
 
   //событие с таргетом на кнопку Buy + - Delete
   document.onclick = function (e) {
-    console.log(e.target.attributes.data.nodeValue);
     if (e.target.attributes.name != undefined) {
       if (e.target.attributes.name.nodeValue == 'add-to-cart') {
         addToCart(e.target.attributes.data.nodeValue);
@@ -90,6 +89,28 @@ window.onload = function () { //запускать скрипт при загр�
         }
         localStorage.setItem('cart', JSON.stringify(cart));
         showCart();
+      } else if (
+        e.target.attributes.name.nodeValue == 'buy'
+      ) {
+        let data = {
+          name: document.getElementById('customer-name').value,
+          email: document.getElementById('customer-email').value,
+          phone: document.getElementById('customer-phone').value,
+          cart: cart
+        };
+
+        fetch("php_mail/mail.php", {
+            method: "POST",
+            body: JSON.stringify(data)
+          })
+          .then(function (res) {
+            console.log(res);
+            if (res) {
+              alert('Your order has been sent');
+            } else {
+              alert('Order error');
+            }
+          });
       }
     }
     return false;
@@ -140,6 +161,5 @@ window.onload = function () { //запускать скрипт при загр�
       ul.innerHTML += li;
     }
     ul.innerHTML += 'Subtotal: $' + sum;
-
   }
 };
