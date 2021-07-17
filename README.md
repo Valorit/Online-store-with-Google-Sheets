@@ -1,2 +1,1 @@
-# shop
-Build shop with google sheet
+# Online store with Google Sheets
